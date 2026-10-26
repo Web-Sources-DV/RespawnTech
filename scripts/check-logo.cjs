@@ -1,0 +1,17 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({executablePath:process.env.RESPAWN_BROWSER_PATH || undefined,args:['--no-sandbox']});try{
+ const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(process.env.RESPAWN_TEST_URL || 'http://127.0.0.1:8000');const png=await page.locator('#brand-logo').screenshot();await page.locator('#open-logo').click();assert.ok(await page.locator('#logo-file').isVisible());
+ const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.locator('#logo-file').click()]);await chooser.setFiles({name:'logo.png',mimeType:'image/png',buffer:png});await page.waitForFunction(()=>document.querySelector('#logo-message').textContent.startsWith('Logo guardado'));
+ const first=await page.evaluate(()=>localStorage.getItem('respawntech.logo.v1'));assert.equal(await page.locator('#brand-logo').getAttribute('src'),first);assert.equal(await page.locator('#favicon').getAttribute('href'),first);
+ await page.locator('#done-logo').click();await page.reload();assert.equal(await page.locator('#brand-logo').getAttribute('src'),first);await page.locator('#open-logo').click();
+ // Pega un archivo de imagen como lo entrega el portapapeles del navegador.
+ await page.evaluate(()=>{const c=document.createElement('canvas');c.width=50;c.height=50;c.getContext('2d').fillRect(0,0,50,50);c.toBlob(blob=>{const transfer=new DataTransfer();transfer.items.add(new File([blob],'pasted.png',{type:'image/png'}));document.querySelector('#logo-editor').dispatchEvent(new ClipboardEvent('paste',{clipboardData:transfer,bubbles:true,cancelable:true}));});});
+ await page.waitForFunction(old=>localStorage.getItem('respawntech.logo.v1')!==old,first);const pasted=await page.evaluate(()=>localStorage.getItem('respawntech.logo.v1'));
+ await page.locator('#logo-file').setInputFiles({name:'broken.png',mimeType:'image/png',buffer:Buffer.from('not an image')});await page.waitForFunction(()=>document.querySelector('#logo-message').textContent.startsWith('No se pudo abrir'));
+ assert.equal(await page.evaluate(()=>localStorage.getItem('respawntech.logo.v1')),pasted);
+ await page.evaluate(data=>{const transfer=new DataTransfer();transfer.items.add(new File([Uint8Array.from(atob(data),c=>c.charCodeAt(0))],'drop.png',{type:'image/png'}));document.querySelector('#logo-drop').dispatchEvent(new DragEvent('drop',{dataTransfer:transfer,bubbles:true,cancelable:true}));},png.toString('base64'));
+ await page.waitForFunction(()=>document.querySelector('#logo-message').textContent.startsWith('Logo guardado'));
+ const pages=await page.evaluate(async()=>{const job={id:'abc',reference:'RT-0001',client:'Ana',device:'PS5',type:'Consola',phone:'63164022',created:'2026-10-26T00:00:00Z',readyDate:'',serial:'',status:'Cotización',notes:'',deposit:0,services:[{name:'Revisión',price:1500}]};return (await createQuotePdf(job)).getNumberOfPages();});assert.equal(pages,1);
+ await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);console.log('PASS: botón Logo, selector nativo, carga PNG, pegar, arrastrar, persistencia, favicon, rechazo de archivo inválido sin perder logo, PDF y móvil.');
+ }finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1)});

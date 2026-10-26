@@ -36,7 +36,7 @@ Abre la app una vez con conexión mediante HTTPS o localhost y espera a que se r
 
 Los trabajos se guardan en localStorage de **ese navegador y origen**, sin servidor, autenticación ni sincronización automática. Usa dispositivos y sesiones protegidas; no guardes contraseñas ni claves de licencia. Borrar los datos del navegador elimina el historial. Exporta respaldos JSON regularmente. Importar agrega referencias nuevas y conserva los registros existentes; no actualiza registros repetidos. Para ver un mismo historial en otro dispositivo, importa el respaldo; los cambios posteriores no se sincronizan.
 
-Usa el botón Logo para cargar tu imagen PNG, JPG o WebP (hasta 5 MB). Se guarda en ese navegador y se incluye en la imagen de marca de la esquina superior izquierda, el icono de la pestaña, la vista previa y el PDF; por defecto se usa el monograma RT. El logo no forma parte del respaldo de cotizaciones: cárgalo también en cada dispositivo.
+Usa el botón Logo para abrir la ventana de marca y seleccionar una imagen PNG, JPG o WebP (hasta 5 MB). También admite arrastrar la imagen o pegarla con Ctrl+V / ⌘V. Si el navegador integrado no abre el selector, pega la imagen o usa Chrome, Edge o Safari. Se guarda en ese navegador y se incluye en la imagen de marca de la esquina superior izquierda, el icono de la pestaña, la vista previa y el PDF; por defecto se usa el monograma RT. El logo no forma parte del respaldo de cotizaciones: cárgalo también en cada dispositivo.
 
 La garantía y los términos de respaldo de datos son texto fijo no editable. La cotización vence 15 días después de su emisión; editarla conserva su fecha original. No hay login ni usuarios por técnico: la app abre directamente en el taller.
 
@@ -53,3 +53,7 @@ Las referencias visibles son RT-0001, RT-0002, etc. El identificador interno dis
 ## Actualizar la app
 
 El pie muestra la versión instalada. Pulsa Actualizar app con conexión para solicitar una navegación nueva sin borrar las cotizaciones ni el logo. Los recursos llevan una versión en su URL y el service worker consulta la red sin reutilizar la caché HTTP; la copia sin conexión se conserva para cuando no haya red. Si no ves el botón en una versión anterior, abre la dirección de la app con `?actualizar=202610263`. El despliegue de GitHub Pages debe haber terminado antes.
+
+## Prueba del cargador de logo en navegador
+
+Con el servidor local activo y Playwright disponible en tu entorno de pruebas, ejecuta `node scripts/check-logo.cjs`. Usa el Chromium de Playwright o indica su ejecutable mediante `RESPAWN_BROWSER_PATH`. La URL predeterminada es `http://127.0.0.1:8000`; puedes cambiarla con `RESPAWN_TEST_URL`. Esta prueba utiliza un contexto de navegador aislado y no cambia el historial real. Playwright es solo una herramienta de validación opcional; la app publicada no lo necesita.

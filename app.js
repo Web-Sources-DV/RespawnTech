@@ -101,23 +101,48 @@ function connection(){ $('#connection').textContent=navigator.onLine?'Guardado l
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js', {updateViaCache:'none'}).catch(()=>notice('No se activó el modo sin internet. Usa HTTPS o un servidor local y recarga.'));
 
 
-// El logo se convierte a PNG: funciona sin internet y no inserta SVG arbitrario en el DOM.
+// El logo se convierte a PNG sin insertar contenido de un archivo en el DOM.
 const logoKey='respawntech.logo.v1';
-function showLogo() { const source=localStorage.getItem(logoKey) || './icon.svg'; $('#brand-logo').src=source; $('#favicon').href=source; }
+let logoLoading=false;
+function showLogo() {
+ const source=localStorage.getItem(logoKey) || './icon.svg';
+ $('#brand-logo').src=source; $('#favicon').href=source; $('#logo-preview').src=source;
+}
 try { showLogo(); } catch { notice('No se pudo leer el logo guardado.'); }
-$('#logo-file').onchange=async e=>{
+$('#open-logo').onclick=()=>{ $('#logo-message').textContent=''; $('#logo-editor').showModal(); };
+for(const id of ['#close-logo','#done-logo']) $(id).onclick=()=>$('#logo-editor').close();
+async function loadLogo(file) {
+ if(!file || logoLoading) return;
+ logoLoading=true; $('#logo-file').disabled=true;
+ $('#logo-message').textContent='Cargando imagen…';
  try {
-  const file=e.target.files[0]; if(!file)return;
-  if(!['image/png','image/jpeg','image/webp'].includes(file.type) || file.size>5*1024*1024) throw Error('Usa una imagen PNG, JPG o WebP de hasta 5 MB.');
-  const url=URL.createObjectURL(file);
-  try { const img=new Image();img.src=url;await img.decode();
-   const ratio=Math.min(1,800/Math.max(img.width,img.height)); const canvas=document.createElement('canvas');
-   canvas.width=Math.max(1,Math.round(img.width*ratio));canvas.height=Math.max(1,Math.round(img.height*ratio));
-   canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-   localStorage.setItem(logoKey,canvas.toDataURL('image/png'));showLogo();notice('Logo guardado en este navegador. Se incluirá en tus PDF.');
-  } finally {URL.revokeObjectURL(url);}
- }catch(error){notice(error.message);}finally{e.target.value='';}
-};
+  const supported=['image/png','image/jpeg','image/webp'].includes(file.type) || (!file.type && /\.(png|jpe?g|webp)$/i.test(file.name));
+  if(!supported || file.size>5*1024*1024) throw Error('Usa una imagen PNG, JPG o WebP de hasta 5 MB.');
+  // FileReader evita depender de URLs blob en navegadores integrados.
+  const source=await new Promise((resolve,reject)=>{
+   const reader=new FileReader();reader.onload=()=>resolve(reader.result);
+   reader.onerror=()=>reject(Error('No se pudo leer el archivo. Prueba con otra copia de la imagen.'));
+   reader.readAsDataURL(file);
+  });
+  const img=new Image(); img.src=source;
+  try { await img.decode(); } catch { throw Error('No se pudo abrir esa imagen. Guárdala como PNG o JPG e inténtalo de nuevo.'); }
+  const ratio=Math.min(1,800/Math.max(img.width,img.height)); const canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(img.width*ratio));canvas.height=Math.max(1,Math.round(img.height*ratio));
+  canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+  try { localStorage.setItem(logoKey,canvas.toDataURL('image/png')); }
+  catch { throw Error('No se pudo guardar el logo. Revisa el espacio y los permisos de almacenamiento del navegador.'); }
+  showLogo(); $('#logo-message').textContent='Logo guardado. Ya aparece en la app y se incluirá en tus PDF.';
+ } catch(error) { $('#logo-message').textContent=error.message; }
+ finally { logoLoading=false; $('#logo-file').disabled=false; $('#logo-file').value=''; }
+}
+$('#logo-file').onchange=e=>loadLogo(e.target.files[0]);
+$('#logo-editor').addEventListener('paste',e=>{
+ const file=Array.from(e.clipboardData?.items || []).find(item=>item.kind==='file')?.getAsFile();
+ if(file){e.preventDefault();loadLogo(file);}
+ else $('#logo-message').textContent='Copia la imagen, no su enlace: usa «Copiar imagen» y vuelve a pegarla aquí.';
+});
+$('#logo-drop').addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';});
+$('#logo-drop').addEventListener('drop',e=>{e.preventDefault();loadLogo(e.dataTransfer.files[0]);});
 
 // Solicita una navegación nueva; conserva historial y logo del mismo origen.
 $('#update-app').onclick=()=>{
