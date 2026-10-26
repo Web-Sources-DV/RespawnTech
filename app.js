@@ -103,7 +103,7 @@ if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').cat
 
 // El logo se convierte a PNG: funciona sin internet y no inserta SVG arbitrario en el DOM.
 const logoKey='respawntech.logo.v1';
-function showLogo() { const source=localStorage.getItem(logoKey) || './icon.svg'; $('#brand-logo').src=source; }
+function showLogo() { const source=localStorage.getItem(logoKey) || './icon.svg'; $('#brand-logo').src=source; $('#favicon').href=source; }
 try { showLogo(); } catch { notice('No se pudo leer el logo guardado.'); }
 $('#logo-file').onchange=async e=>{
  try {

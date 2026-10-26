@@ -36,7 +36,7 @@ Abre la app una vez con conexión mediante HTTPS o localhost y espera a que se r
 
 Los trabajos se guardan en localStorage de **ese navegador y origen**, sin servidor, autenticación ni sincronización automática. Usa dispositivos y sesiones protegidas; no guardes contraseñas ni claves de licencia. Borrar los datos del navegador elimina el historial. Exporta respaldos JSON regularmente. Importar agrega referencias nuevas y conserva los registros existentes; no actualiza registros repetidos. Para ver un mismo historial en otro dispositivo, importa el respaldo; los cambios posteriores no se sincronizan.
 
-Usa el botón Logo para cargar tu imagen PNG, JPG o WebP (hasta 5 MB). Se guarda en ese navegador y se incluye en la vista previa y el PDF; por defecto se usa el monograma RT. El logo no forma parte del respaldo de cotizaciones: cárgalo también en cada dispositivo.
+Usa el botón Logo para cargar tu imagen PNG, JPG o WebP (hasta 5 MB). Se guarda en ese navegador y se incluye en la imagen de marca de la esquina superior izquierda, el icono de la pestaña, la vista previa y el PDF; por defecto se usa el monograma RT. El logo no forma parte del respaldo de cotizaciones: cárgalo también en cada dispositivo.
 
 La garantía y los términos de respaldo de datos son texto fijo no editable. La cotización vence 15 días después de su emisión; editarla conserva su fecha original. No hay login ni usuarios por técnico: la app abre directamente en el taller.
 
