@@ -6,3 +6,6 @@
 img.logo{object-fit:contain;padding:2px;flex-shrink:0}.tools{flex-wrap:wrap}
 
 .document-logo{width:64px;height:64px;object-fit:contain;margin-bottom:8px}
+
+#update-app{font-size:11px;padding:4px 9px;margin-left:6px}
+#notice{pointer-events:none}

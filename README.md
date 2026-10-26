@@ -49,3 +49,7 @@ El botón Abrir WhatsApp usa `https://wa.me/` con el teléfono del cliente y un 
 ## Referencias
 
 Las referencias visibles son RT-0001, RT-0002, etc. El identificador interno distingue las cotizaciones para editar e importar respaldos. Los registros antiguos con UUID conservan ese identificador y muestran solo el consecutivo. Editar mantiene la referencia. La siguiente se calcula consultando el mayor consecutivo del historial y el contador anterior; no vuelve a 0001 por perder el contador si el historial permanece. Los navegadores con Web Locks coordinan el guardado entre pestañas. El consecutivo es local: no hay numeración central compartida entre dispositivos.
+
+## Actualizar la app
+
+El pie muestra la versión instalada. Pulsa Actualizar app con conexión para solicitar una navegación nueva sin borrar las cotizaciones ni el logo. Los recursos llevan una versión en su URL y el service worker consulta la red sin reutilizar la caché HTTP; la copia sin conexión se conserva para cuando no haya red. Si no ves el botón en una versión anterior, abre la dirección de la app con `?actualizar=202610263`. El despliegue de GitHub Pages debe haber terminado antes.

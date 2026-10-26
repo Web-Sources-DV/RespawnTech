@@ -98,7 +98,7 @@ $('#whatsapp').onclick=()=>{try {const url=whatsappUrl(current);window.open(url,
 $('#export').onclick=()=>{const blob=new Blob([JSON.stringify({version:1,jobs},null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');a.href=url;a.download=`RespawnTech-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 $('#import').onchange=async e=>{try {if(!storageHealthy)throw Error('Importación bloqueada para conservar datos ilegibles.');const file=e.target.files[0];if(!file)return;if(file.size>5000000)throw Error('El respaldo supera 5 MB.');const data=JSON.parse(await file.text());if(data.version!==1 || !Array.isArray(data.jobs) || data.jobs.length>10000)throw Error('Respaldo incompatible.'); const imported=data.jobs.map(validate);if(new Set(imported.map(j=>j.id)).size!==imported.length)throw Error('Respaldo con referencias duplicadas.'); const merged=new Map(jobs.map(j=>[j.id,j]));let conflicts=0;for(const j of imported){if(merged.has(j.id)){conflicts++;continue;}merged.set(j.id,j);} if(persist([...merged.values()]))notice(`Respaldo importado. ${conflicts} referencias existentes conservadas sin sobrescribir.`); }catch(error){notice('No se importó: '+error.message);}finally{e.target.value='';}};
 function connection(){ $('#connection').textContent=navigator.onLine?'Guardado local · Con conexión':'Sin conexión · Guardado local'; } window.addEventListener('online',connection);window.addEventListener('offline',connection);connection();render();
-if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>notice('No se activó el modo sin internet. Usa HTTPS o un servidor local y recarga.'));
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js', {updateViaCache:'none'}).catch(()=>notice('No se activó el modo sin internet. Usa HTTPS o un servidor local y recarga.'));
 
 
 // El logo se convierte a PNG: funciona sin internet y no inserta SVG arbitrario en el DOM.
@@ -117,4 +117,9 @@ $('#logo-file').onchange=async e=>{
    localStorage.setItem(logoKey,canvas.toDataURL('image/png'));showLogo();notice('Logo guardado en este navegador. Se incluirá en tus PDF.');
   } finally {URL.revokeObjectURL(url);}
  }catch(error){notice(error.message);}finally{e.target.value='';}
+};
+
+// Solicita una navegación nueva; conserva historial y logo del mismo origen.
+$('#update-app').onclick=()=>{
+ const url=new URL('./',location.href);url.searchParams.set('actualizar',Date.now());location.assign(url.href);
 };
