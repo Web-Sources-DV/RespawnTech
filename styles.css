@@ -2,3 +2,7 @@
 @media print{body>*{display:none!important}body>#detail{display:block!important;position:static;max-height:none;width:100%;border:0;padding:0;background:white}#detail .no-print{display:none}#document{padding:0}#document tr{break-inside:avoid}@page{margin:16mm}}
 
 [hidden]{display:none!important}.filters{flex-wrap:wrap}.filters input{min-width:160px}
+
+img.logo{object-fit:contain;padding:2px;flex-shrink:0}.tools{flex-wrap:wrap}
+
+.document-logo{width:64px;height:64px;object-fit:contain;margin-bottom:8px}
