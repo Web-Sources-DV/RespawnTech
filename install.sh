@@ -16,7 +16,7 @@ fi
 python3 -c 'import sys; assert sys.version_info >= (3, 8), "Se requiere Python 3.8 o superior"'
 node -e 'if (Number(process.versions.node.split(".")[0]) < 20) { console.error("Se requiere Node.js 20 o superior"); process.exit(1); }'
 
-for file in index.html styles.css app.js pdf.js vendor/jspdf.umd.min.js sw.js manifest.webmanifest icon.svg tests/logic.test.js; do
+for file in index.html styles.css app.js gmail.js pdf.js vendor/jspdf.umd.min.js sw.js manifest.webmanifest icon.svg tests/logic.test.js; do
   if [[ ! -f "$file" ]]; then
     printf 'Falta un archivo necesario: %s\n' "$file" >&2
     exit 1
@@ -26,7 +26,8 @@ done
 node --check app.js
 node --check sw.js
 node --check pdf.js
-node --test tests/logic.test.js
+node --check gmail.js
+node --test tests/*.test.js
 
 printf '\nRespawnTech preparada. No requiere npm install ni compilación.\n'
 printf 'Para iniciar desde esta carpeta: python3 -m http.server 8000 --bind 127.0.0.1\n'

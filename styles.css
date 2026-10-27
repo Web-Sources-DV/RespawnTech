@@ -11,3 +11,5 @@ img.logo{object-fit:contain;padding:2px;flex-shrink:0}.tools{flex-wrap:wrap}
 #notice{pointer-events:none}
 
 #logo-editor{width:min(520px,94vw)}#logo-editor .muted{margin-top:16px}#logo-file{display:block;padding:12px}#logo-file::file-selector-button{background:#7739bd;border:0;border-radius:6px;color:white;padding:9px;margin-right:10px;cursor:pointer}#logo-drop{text-align:center;border:1px dashed var(--purple);border-radius:12px;padding:22px;margin-top:18px}#logo-drop:focus-visible{outline:2px solid var(--cyan)}#logo-preview{display:block;width:130px;height:130px;object-fit:contain;margin:0 auto 14px}#logo-drop p{font-size:12px}#logo-message{margin-top:16px;color:var(--cyan);font-size:13px}
+
+#email-editor{width:min(600px,94vw)}#email-form>label{margin-top:20px}#gmail-settings{padding:12px;border:1px solid var(--line);border-radius:8px;margin:15px 0}#gmail-settings summary{cursor:pointer}#email-message{margin:18px 0;color:var(--cyan)}#email-form>button,#email-form>a{margin:6px 5px 6px 0;display:inline-block}

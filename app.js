@@ -148,3 +148,49 @@ $('#logo-drop').addEventListener('drop',e=>{e.preventDefault();loadLogo(e.dataTr
 $('#update-app').onclick=()=>{
  const url=new URL('./',location.href);url.searchParams.set('actualizar',Date.now());location.assign(url.href);
 };
+
+let preparedEmail=null,emailBusy=false;
+const gmailClientKey='respawntech.gmail.client.v1';
+function emailStatus(text){$('#email-message').textContent=text;}
+async function loadGoogle(){
+ $('#create-gmail-draft').disabled=true;$('#retry-gmail').hidden=true;
+ try{await GmailDraft.load();$('#create-gmail-draft').disabled=false;}
+ catch(error){emailStatus(error.message);$('#retry-gmail').hidden=false;}
+}
+$('#email-quote').onclick=()=>{
+ preparedEmail=null;$('#recipient-email').value=current.email || '';$('#open-gmail').hidden=true;$('#create-gmail-draft').hidden=true;
+ try{$('#gmail-client-id').value=localStorage.getItem(gmailClientKey) || '';}catch{$('#gmail-client-id').value='';}
+ $('#gmail-settings').open=!$('#gmail-client-id').value;emailStatus('');$('#email-editor').showModal();
+};
+$('#close-email').onclick=()=>{if(!emailBusy)$('#email-editor').close();};
+$('#email-editor').addEventListener('cancel',e=>{if(emailBusy)e.preventDefault();});
+function invalidateEmail(){preparedEmail=null;$('#create-gmail-draft').hidden=true;$('#open-gmail').hidden=true;}
+$('#recipient-email').oninput=invalidateEmail;
+$('#gmail-client-id').oninput=()=>{GmailDraft.forget();invalidateEmail();};
+$('#email-form').onsubmit=async e=>{
+ e.preventDefault();if(emailBusy)return;emailBusy=true;$('#prepare-email').disabled=true;$('#recipient-email').disabled=true;$('#gmail-client-id').disabled=true;invalidateEmail();emailStatus('Preparando PDF…');
+ try{
+  const id=GmailDraft.clientId($('#gmail-client-id').value.trim()),email=$('#recipient-email').value.trim();
+  const job=validate({...current,email});const pdf=await createQuotePdf(job);
+  const raw=GmailDraft.mime(email,'Cotización '+reference(job)+' · RespawnTech',reference(job)+'.pdf',new Uint8Array(pdf.output('arraybuffer')));
+  const latest=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(latest))throw Error('Historial inválido.');
+  if(!latest.some(j=>j.id===job.id))throw Error('La cotización ya no está en el historial.');
+  localStorage.setItem(gmailClientKey,id);
+  if(!persist(latest.map(validate).map(j=>j.id===job.id?{...j,email}:j)))throw Error('No se pudo guardar el correo del cliente.');
+  current=job;preparedEmail={raw,clientId:id};$('#create-gmail-draft').hidden=false;emailStatus('PDF listo. Conecta Gmail para crear el borrador con adjunto.');loadGoogle();
+ }catch(error){emailStatus(error.message);}
+ finally{emailBusy=false;$('#prepare-email').disabled=false;$('#recipient-email').disabled=false;$('#gmail-client-id').disabled=false;}
+};
+$('#retry-gmail').onclick=loadGoogle;
+$('#create-gmail-draft').onclick=()=>{
+ if(!preparedEmail || emailBusy)return;emailBusy=true;
+ $('#create-gmail-draft').disabled=true;$('#prepare-email').disabled=true;$('#recipient-email').disabled=true;$('#gmail-client-id').disabled=true;$('#disconnect-gmail').disabled=true;
+ const finish=()=>{emailBusy=false;$('#create-gmail-draft').disabled=false;$('#prepare-email').disabled=false;$('#recipient-email').disabled=false;$('#gmail-client-id').disabled=false;$('#disconnect-gmail').disabled=false;};
+ emailStatus('Autoriza tu cuenta Google para crear el borrador…');
+ GmailDraft.authorize(preparedEmail.clientId,async()=>{
+  emailStatus('Creando borrador con PDF adjunto…');
+  try{const result=await GmailDraft.create(preparedEmail);$('#open-gmail').href=result.url;$('#open-gmail').hidden=false;$('#create-gmail-draft').hidden=true;emailStatus('Borrador creado en '+result.account+'. Abre Gmail, escribe el mensaje y envíalo cuando esté listo.');preparedEmail=null;}
+  catch(error){emailStatus(error.message);}finally{finish();}
+ },error=>{emailStatus(error.message);finish();});
+};
+$('#disconnect-gmail').onclick=()=>{GmailDraft.forget();invalidateEmail();emailStatus('Conexión local cerrada. Puedes autorizar otra cuenta cuando prepares un PDF.');};

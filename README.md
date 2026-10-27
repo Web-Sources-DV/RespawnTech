@@ -57,3 +57,7 @@ El pie muestra la versión instalada. Pulsa Actualizar app con conexión para so
 ## Prueba del cargador de logo en navegador
 
 Con el servidor local activo y Playwright disponible en tu entorno de pruebas, ejecuta `node scripts/check-logo.cjs`. Usa el Chromium de Playwright o indica su ejecutable mediante `RESPAWN_BROWSER_PATH`. La URL predeterminada es `http://127.0.0.1:8000`; puedes cambiarla con `RESPAWN_TEST_URL`. Esta prueba utiliza un contexto de navegador aislado y no cambia el historial real. Playwright es solo una herramienta de validación opcional; la app publicada no lo necesita.
+
+## Correo mediante Gmail
+
+En Ver / PDF encontrarás Enviar por Gmail. Prepara el documento y conecta tu cuenta para crear un borrador con PDF adjunto y cuerpo vacío. Abre Borradores en Gmail para escribir y confirmar el envío. Requiere un ID OAuth web de tu proyecto de Google Cloud y autorización de tu cuenta; sigue [Conectar Gmail](GMAIL.md). No hay contraseñas de Gmail ni secretos de cliente en la app. La integración real queda pendiente hasta configurar ese ID.
